@@ -16,11 +16,22 @@ import {
   FieldSeparator,
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
+import type { ChangeEvent, ComponentProps, FormEvent } from "react"
 
-export function SignupForm({
+type SignupFormProps = {
+  email : string;
+  onEmailChange : (value: string) => void;
+  password: string; 
+  onPasswordChange : (value: string) => void;
+  onSubmit: (e: FormEvent<HTMLFormElement>) => void | Promise<void>;
+  error: string;
+  loading: boolean;
+} & Omit<ComponentProps<"div">, "onSubmit">
+
+export function SignupForm({email, onEmailChange, password, onPasswordChange, onSubmit, error, loading,
   className,
   ...props
-}: React.ComponentProps<"div">) {
+}: SignupFormProps) {
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
@@ -31,7 +42,7 @@ export function SignupForm({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form>
+          <form onSubmit={onSubmit}>
             <FieldGroup>
               <Field>
                 <Button variant="outline" type="button">
@@ -61,6 +72,8 @@ export function SignupForm({
                 <Input
                   id="email"
                   type="email"
+                  value={email}
+                  onChange={(e: ChangeEvent<HTMLInputElement>) => onEmailChange(e.target.value)}
                   placeholder="m@example.com"
                   required
                 />
@@ -68,20 +81,22 @@ export function SignupForm({
               <Field>
                 <div className="flex items-center">
                   <FieldLabel htmlFor="password">Password</FieldLabel>
-                  <a
-                    href="#"
+                  <Link
+                    href="/reset-password"
                     className="ml-auto text-sm underline-offset-4 hover:underline"
                   >
                     Forgot your password?
-                  </a>
+                  </Link>
                 </div>
-                <Input id="password" type="password" required />
+                <Input id="password" type="password" value={password}
+                  onChange={(e: ChangeEvent<HTMLInputElement>) => onPasswordChange(e.target.value)} required />
               </Field>
               <Field>
-                <Button type="submit">Sign up</Button>
+                <Button type="submit" disabled={loading}>{loading ? "Signing up..." : "Sign up"}</Button>
                 <FieldDescription className="text-center">
                   Already have an account? <Link href="/login">Login</Link>
                 </FieldDescription>
+                {error ? <FieldDescription className="text-center text-red-600">{error}</FieldDescription> : null}
               </Field>
             </FieldGroup>
           </form>
