@@ -1,6 +1,5 @@
-
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import {
   Card,
@@ -8,20 +7,38 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
+} from "@/components/ui/card";
 import {
   Field,
   FieldDescription,
   FieldGroup,
   FieldLabel,
   FieldSeparator,
-} from "@/components/ui/field"
-import { Input } from "@/components/ui/input"
+} from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
+import type { ChangeEvent, ComponentProps, FormEvent } from "react";
+
+type SignInFormProps = {
+  email: string;
+  onEmailChange: (value: string) => void;
+  password: string;
+  onPasswordChange: (value: string) => void;
+  onSubmit: (e: FormEvent<HTMLFormElement>) => void | Promise<void>;
+  error: string;
+  loading: boolean;
+} & Omit<ComponentProps<"div">, "onSubmit">;
 
 export function LoginForm({
+  email,
+  onEmailChange,
+  password,
+  onPasswordChange,
+  onSubmit,
+  error,
+  loading,
   className,
   ...props
-}: React.ComponentProps<"div">) {
+}: SignInFormProps) {
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
@@ -32,7 +49,7 @@ export function LoginForm({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form>
+          <form onSubmit={onSubmit}>
             <FieldGroup>
               <Field>
                 <Button variant="outline" type="button">
@@ -42,7 +59,7 @@ export function LoginForm({
                       fill="currentColor"
                     />
                   </svg>
-                  Login with Apple
+                  Sign In with Apple
                 </Button>
                 <Button variant="outline" type="button">
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
@@ -51,7 +68,7 @@ export function LoginForm({
                       fill="currentColor"
                     />
                   </svg>
-                  Login with Google
+                  Sign In with Google
                 </Button>
               </Field>
               <FieldSeparator className="*:data-[slot=field-separator-content]:bg-card">
@@ -62,6 +79,10 @@ export function LoginForm({
                 <Input
                   id="email"
                   type="email"
+                  value={email}
+                  onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                    onEmailChange(e.target.value)
+                  }
                   placeholder="me@example.com"
                   required
                 />
@@ -70,19 +91,29 @@ export function LoginForm({
                 <div className="flex items-center">
                   <FieldLabel htmlFor="password">Password</FieldLabel>
                   <Link
-        
                     href="/login"
                     className="ml-auto text-sm underline-offset-4 hover:underline"
                   >
                     Forgot your password?
                   </Link>
                 </div>
-                <Input id="password" type="password" required />
+                <Input
+                  id="password"
+                  type="password"
+                  value={password}
+                  onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                    onPasswordChange(e.target.value)
+                  }
+                  required
+                />
               </Field>
               <Field>
-                <Button type="submit">Login</Button>
+               <Button type="submit" disabled={loading}>
+                  {loading ? "Signing up..." : "Sign In"}
+                </Button>
                 <FieldDescription className="text-center">
-                  Don&apos;t have an account? <Link href="/register">Sign up</Link>
+                  Don&apos;t have an account?{" "}
+                  <Link href="/sign-up">Sign up</Link>
                 </FieldDescription>
               </Field>
             </FieldGroup>
@@ -94,5 +125,5 @@ export function LoginForm({
         and <a href="#">Privacy Policy</a>.
       </FieldDescription>
     </div>
-  )
+  );
 }

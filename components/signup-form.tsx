@@ -1,5 +1,5 @@
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import {
   Card,
@@ -7,28 +7,39 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
+} from "@/components/ui/card";
 import {
   Field,
   FieldDescription,
   FieldGroup,
   FieldLabel,
   FieldSeparator,
-} from "@/components/ui/field"
-import { Input } from "@/components/ui/input"
-import type { ChangeEvent, ComponentProps, FormEvent } from "react"
+} from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
+import type { ChangeEvent, ComponentProps, FormEvent } from "react";
 
 type SignupFormProps = {
-  email : string;
-  onEmailChange : (value: string) => void;
-  password: string; 
-  onPasswordChange : (value: string) => void;
+  name: string;
+  onNameChange: (value: string) => void;
+  email: string;
+  onEmailChange: (value: string) => void;
+  password: string;
+  onPasswordChange: (value: string) => void;
   onSubmit: (e: FormEvent<HTMLFormElement>) => void | Promise<void>;
   error: string;
   loading: boolean;
-} & Omit<ComponentProps<"div">, "onSubmit">
+} & Omit<ComponentProps<"div">, "onSubmit">;
 
-export function SignupForm({email, onEmailChange, password, onPasswordChange, onSubmit, error, loading,
+export function SignupForm({
+  name,
+  onNameChange,
+  email,
+  onEmailChange,
+  password,
+  onPasswordChange,
+  onSubmit,
+  error,
+  loading,
   className,
   ...props
 }: SignupFormProps) {
@@ -68,13 +79,28 @@ export function SignupForm({email, onEmailChange, password, onPasswordChange, on
                 Or continue with
               </FieldSeparator>
               <Field>
+                <FieldLabel htmlFor="name">Name</FieldLabel>
+                <Input
+                  id="name"
+                  type="name"
+                  value={name}
+                  onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                    onNameChange(e.target.value)
+                  }
+                  placeholder="John Doe"
+                  required
+                />
+              </Field>
+              <Field>
                 <FieldLabel htmlFor="email">Email</FieldLabel>
                 <Input
                   id="email"
                   type="email"
                   value={email}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) => onEmailChange(e.target.value)}
-                  placeholder="m@example.com"
+                  onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                    onEmailChange(e.target.value)
+                  }
+                  placeholder="Johndoe@example.com"
                   required
                 />
               </Field>
@@ -88,15 +114,29 @@ export function SignupForm({email, onEmailChange, password, onPasswordChange, on
                     Forgot your password?
                   </Link>
                 </div>
-                <Input id="password" type="password" value={password}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) => onPasswordChange(e.target.value)} required />
+                <Input
+                  id="password"
+                  type="password"
+                  value={password}
+                  min={8}
+                  onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                    onPasswordChange(e.target.value)
+                  }
+                  required
+                />
               </Field>
               <Field>
-                <Button type="submit" disabled={loading}>{loading ? "Signing up..." : "Sign up"}</Button>
+                <Button type="submit" disabled={loading}>
+                  {loading ? "Creating account..." : "Sign up"}
+                </Button>
                 <FieldDescription className="text-center">
-                  Already have an account? <Link href="/login">Login</Link>
+                  Already have an account? <Link href="/sign-in">Sign In</Link>
                 </FieldDescription>
-                {error ? <FieldDescription className="text-center text-red-600">{error}</FieldDescription> : null}
+                {error ? (
+                  <FieldDescription className="text-center text-red-600">
+                    {error}
+                  </FieldDescription>
+                ) : null}
               </Field>
             </FieldGroup>
           </form>
@@ -107,5 +147,5 @@ export function SignupForm({email, onEmailChange, password, onPasswordChange, on
         and <a href="#">Privacy Policy</a>.
       </FieldDescription>
     </div>
-  )
+  );
 }
