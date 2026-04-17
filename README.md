@@ -107,21 +107,27 @@ Notes:
 
 ### Setup
 
-1. Install dependencies:
+1. Clone the repo:
+
+```bash
+git clone https://github.com/itsmeanuj311/job-application-tracker.git
+```
+
+2. Install dependencies:
 
 ```bash
 npm install
 ```
 
-2. Add environment variables in .env.local.
+3. Add environment variables in .env.local.
 
-3. Run development server:
+4. Run development server:
 
 ```bash
 npm run dev
 ```
 
-4. Open http://localhost:3000.
+5. Open http://localhost:3000.
 
 ## Scripts
 
@@ -139,6 +145,96 @@ npm run dev
 5. User is redirected to dashboard.
 
 This flow ensures idempotent first-time provisioning and avoids duplicate boards per user.
+
+## Planned API Contract (v1)
+
+This section defines the target REST contract for dashboard and job-tracking features.
+
+### API Conventions
+
+- Base path: /api
+- Content type: application/json
+- Auth: Session-based via Better Auth cookie
+- Error format:
+
+```json
+{
+  "error": {
+	 "code": "VALIDATION_ERROR",
+	 "message": "Readable error message"
+  }
+}
+```
+
+
+### Endpoints
+
+1. GET /api/boards/current
+	- Purpose: Get authenticated user's primary board with columns and ordered jobs.
+	- 200 response: { "data": { "board": Board } }
+
+2. PATCH /api/boards/:boardId
+	- Purpose: Update board metadata.
+	- Request body: { "name": "Job Hunt 2026" }
+	- 200 response: { "data": { "board": Board } }
+
+3. POST /api/columns
+	- Purpose: Create column in board.
+	- Request body: { "boardId": "string", "name": "Phone Screen", "order": 2 }
+	- 201 response: { "data": { "column": Column } }
+
+4. PATCH /api/columns/:columnId
+	- Purpose: Update column name/order.
+	- Request body: { "name": "Interview Loop", "order": 3 }
+	- 200 response: { "data": { "column": Column } }
+
+5. POST /api/jobs
+	- Purpose: Create a job application card.
+	- Request body: { "boardId": "string", "columnId": "string", "company": "Acme", "position": "Frontend Engineer", "location": "Remote", "status": "applied", "order": 4 }
+	- 201 response: { "data": { "job": JobApplication } }
+
+6. PATCH /api/jobs/:jobId
+	- Purpose: Update job fields.
+	- Request body: Partial JobApplication writable fields.
+	- 200 response: { "data": { "job": JobApplication } }
+
+7. DELETE /api/jobs/:jobId
+	- Purpose: Delete job card and maintain column ordering integrity.
+	- 200 response: { "data": { "deleted": true, "id": "string" } }
+
+8. POST /api/jobs/reorder
+	- Purpose: Move one card within or across columns.
+	- Request body: { "jobId": "string", "fromColumnId": "string", "toColumnId": "string", "toIndex": 1 }
+	- 200 response: { "data": { "job": JobApplication, "reordered": true } }
+
+9. POST /api/columns/reorder
+	- Purpose: Reorder board columns.
+	- Request body: { "boardId": "string", "orderedColumnIds": ["c1", "c2", "c3"] }
+	- 200 response: { "data": { "updated": true } }
+
+### Validation Rules
+
+- company and position are required for job creation.
+- boardId, columnId, and jobId must be valid object IDs.
+- status must map to allowed workflow states.
+- order is zero-based integer.
+
+### Security and Ownership
+
+- Every endpoint verifies authenticated session.
+- Resource queries are always scoped by session user ID.
+- Return 404 for non-owned resources to avoid data leakage.
+
+### Suggested HTTP Status Codes
+
+- 200: Success
+- 201: Created
+- 400: Validation error
+- 401: Unauthenticated
+- 403: Forbidden (optional if 404 masking strategy is used)
+- 404: Not found
+- 409: Conflict (ordering/version conflicts)
+- 500: Unexpected server error
 
 ## Current Gaps and Next Milestones
 
