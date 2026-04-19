@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import { Plus } from "lucide-react";
 import { Button } from "./ui/button";
 import {
@@ -32,8 +35,58 @@ export default function CreateJobDialog({
   columnId,
   boardId,
 }: CreateJobApplicationDialogProps) {
+  const [open, setOpen] = useState<boolean>(false);
+  const [formData, setFormData] = useState({
+    company: "",
+    position: "",
+    location: "",
+    salary: "",
+    jobUrl: "",
+    tags: "",
+    description: "",
+    notes: "",
+  });
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+
+    try {
+      const response = await fetch("/api/jobs", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          boardId,
+          columnId,
+          company: formData.company,
+          position: formData.position,
+          location: formData.location,
+          salary: formData.salary,
+          jobUrl: formData.jobUrl,
+          description: formData.description,
+          notes: formData.notes,
+          tags: formData.tags
+            .split(",")
+            .map((tag) => tag.trim())
+            .filter((tag) => tag.length > 0),
+        }),
+      });
+
+      if (!response.ok) {
+        // Handle error response
+        console.error("Failed to create job application");
+      } else {
+        // Optionally, you can refetch the board data here to show the new job
+        setOpen(false);
+      }
+    } catch (error) {
+      console.error("An error occurred while creating the job application:", error);
+    }
+
+  }
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger>
         <Button
           variant="outline"
@@ -54,23 +107,49 @@ export default function CreateJobDialog({
               <FieldGroup className="grid grid-cols-2 gap-4">
                 <Field className="space-y-2">
                   <FieldLabel htmlFor="company">Company *</FieldLabel>
-                  <Input id="company" placeholder="Google" required />
+                  <Input
+                    id="company"
+                    placeholder="Google"
+                    value={formData.company}
+                    onChange={(e) =>
+                      setFormData({ ...formData, company: e.target.value })
+                    }
+                    required
+                  />
                 </Field>
                 <Field className="space-y-2">
                   <FieldLabel htmlFor="position">Position *</FieldLabel>
                   <Input
                     id="position"
                     placeholder="Software Engineer"
+                    value={formData.position}
+                    onChange={(e) =>
+                      setFormData({ ...formData, position: e.target.value })
+                    }
                     required
                   />
                 </Field>
                 <Field className="space-y-2">
                   <FieldLabel htmlFor="location">Location</FieldLabel>
-                  <Input id="location" placeholder="New York" />
+                  <Input
+                    id="location"
+                    placeholder="New York"
+                    value={formData.location}
+                    onChange={(e) =>
+                      setFormData({ ...formData, location: e.target.value })
+                    }
+                  />
                 </Field>
                 <Field className="space-y-2">
                   <FieldLabel htmlFor="Salary">Salary</FieldLabel>
-                  <Input id="Salary" placeholder="eg., $100k - $150k" />
+                  <Input
+                    id="Salary"
+                    placeholder="eg., $100k - $150k"
+                    value={formData.salary}
+                    onChange={(e) =>
+                      setFormData({ ...formData, salary: e.target.value })
+                    }
+                  />
                 </Field>
 
                 <div className="grid grid-cols-1 gap-4">
@@ -79,6 +158,10 @@ export default function CreateJobDialog({
                     <Input
                       id="JobURL"
                       placeholder="eg., https://company.com/jobs/123"
+                      value={formData.jobUrl}
+                      onChange={(e) =>
+                        setFormData({ ...formData, jobUrl: e.target.value })
+                      }
                     />
                   </Field>
                   <Field className="space-y-2">
@@ -88,6 +171,10 @@ export default function CreateJobDialog({
                     <Input
                       id="tags"
                       placeholder="eg., React, Tailwind, Next.js, Typescript"
+                      value={formData.tags}
+                      onChange={(e) =>
+                        setFormData({ ...formData, tags: e.target.value })
+                      }
                     />
                   </Field>
                   <Field className="space-y-2">
@@ -97,6 +184,13 @@ export default function CreateJobDialog({
                       placeholder="Brief description of the job role..."
                       rows={4}
                       className="resize-none"
+                      value={formData.description}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          description: e.target.value,
+                        })
+                      }
                     />
                   </Field>
                   <Field className="space-y-2">
@@ -106,6 +200,10 @@ export default function CreateJobDialog({
                       placeholder="Additional notes about the job application"
                       rows={4}
                       className="resize-none"
+                      value={formData.notes}
+                      onChange={(e) =>
+                        setFormData({ ...formData, notes: e.target.value })
+                      }
                     />
                   </Field>
                 </div>
