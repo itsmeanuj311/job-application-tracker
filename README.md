@@ -121,6 +121,16 @@ npm install
 
 3. Add environment variables in .env.local.
 
+
+
+```bash
+.env.example
+MONGODB_URI= YOUR_MONGODB_URI
+BETTER_AUTH_SECRET= YOUR_BETTER_AUTH_SECRET  # Generate using this command : openssl rand -base64 32
+BETTER_AUTH_URL= YOUR_BETTER_AUTH_URL   # Base URL of your app
+NEXT_PUBLIC_BETTER_AUTH_URL= YOUR_NEXT_PUBLIC_BETTER_AUTH_URL   # Base URL of your app
+```
+
 4. Run development server:
 
 ```bash
